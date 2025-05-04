@@ -15,4 +15,3 @@ def test_name(user):
 def test_second_name(user):
     assert user.second_name == "Oliinyk"
 
-
