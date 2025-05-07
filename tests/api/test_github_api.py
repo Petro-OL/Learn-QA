@@ -48,5 +48,5 @@ def test_get_all_emojis(github_api):
 @pytest.mark.api
 def test_get_list_commits(github_api):
     ret = github_api.get_list_commits("Petro-OL", "Learn-QA")
-    # assert len(ret) >= 0
+    assert len(ret) >= 0
     assert ret[0]['commit']['author']['name'] == 'Petro Oliinyk'
