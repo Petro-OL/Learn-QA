@@ -16,7 +16,28 @@ class GitHub:
 
         return body
 
+    # non-autentificated user get info about existed user
+    def get_user_contextual_info(self,username):
+        r = requests.get(f"https://api.github.com/users/{username}/hovercard")
+        body = r.json()
 
+        return body
+
+    # test for Lists all the emojis available to use on GitHub
+    def get_list_emojis(self):
+        r = requests.get(f"https://api.github.com/emojis")
+        body = r.json()
+
+        return body
+
+    # test for List commits
+    def get_list_commits(self, username, repo):
+        r = requests.get(f"https://api.github.com/repos/{username}/{repo}/commits")
+        body = r.json()
+
+        return body
+
+    # test from previors lessons
     # def get_non_exist_user(self,username):
     #     r = requests.get(f"https://api.github.com/users/{username}")
     #     body = r.json()
