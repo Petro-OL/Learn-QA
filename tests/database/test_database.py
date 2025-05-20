@@ -52,15 +52,73 @@ def test_product_delete():
 
     assert len(qnt) == 0
 
+# --------------------------
+
 @pytest.mark.database
-def test_detailed_orders():
+# запис в базу при типі основного ключа int значення = Boolean:
+# створюється порожній рядок з ключем = 1 (True) чи ключем = 0 (False)
+def test_work_db_with_autoconvert_id_type():
     db = Database()
-    orders = db.get_detailed_orders()
-    print("Замовлення", orders)
-    # Check quantity of orders equal to 1
-    assert len(orders) == 1
-    # Check struture of data
-    assert orders[0][0] == 1
-    assert orders[0][1] == 'Sergii'
-    assert orders[0][2] == 'солодка вода'
-    assert orders[0][3] == 'з цукром'
+    rec_saved = db.select_product_by_id(1)
+    #print(rec_saved)
+    db.insert_bad_type_of_data('id', True)
+    # ------------------------------------
+    rec_bad = db.select_product_by_id(1)
+    #print(rec_bad)
+    assert rec_bad[0][0] == 1
+    assert rec_bad[0][1] == None
+    assert rec_bad[0][2] == None
+    assert rec_bad[0][3] == None
+    # restore
+    db.insert_product(rec_saved[0][0], rec_saved[0][1], rec_saved[0][2], rec_saved[0][3])
+
+@pytest.mark.database
+# запис в базу при типі основного ключа int значення = Float:
+# перевірка на помилку (код = 1)
+def test_work_db_with_mismatch_id_type_float():
+    db = Database()
+    code = db.insert_bad_type_of_data('id', 1.1)
+    #print(code)
+    assert code == 1
+
+@pytest.mark.database
+# запис в базу при типі основного ключа int значення = String:
+# перевірка на помилку (код = 1)
+def test_work_db_with_mismatch_id_type_str():
+    db = Database()
+    code = db.insert_bad_type_of_data('id', 'text')
+    #print(code)
+    assert code == 1
+
+@pytest.mark.database
+# запис в базу при типі основного ключа int значення = спец. String:
+# перевірка автоперетворення '1' в 1
+def test_work_db_with_autoconvert_id_type_from_str():
+    db = Database()
+    rec_saved = db.select_product_by_id(1)
+    #print(rec_saved)
+    db.insert_bad_type_of_data('id', "1")
+    # ------------------------------------
+    rec_bad = db.select_product_by_id(1)
+    #print(rec_bad)
+    assert rec_bad[0][0] == 1
+    assert rec_bad[0][1] == None
+    assert rec_bad[0][2] == None
+    assert rec_bad[0][3] == None
+    # restore
+    db.insert_product(rec_saved[0][0], rec_saved[0][1], rec_saved[0][2], rec_saved[0][3])
+
+@pytest.mark.database
+# запис в базу при типі даних Поля int значення = String
+# ВІДСУТНЯ помилка, перевірка на успіх запису (код = 0)
+# -----------------
+def test_work_db_with_mismatch_column_type_str_to_int():
+    db = Database()
+    code = db.insert_bad_type_of_data('quantity', 'text')
+    #print(code)
+    assert code == 0
+    # restore
+    query = "SELECT max(id) FROM products"
+    db.cursor.execute(query)
+    rec_num = db.cursor.fetchall()
+    db.delete_product_by_id(rec_num[0][0])

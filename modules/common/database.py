@@ -4,7 +4,6 @@ import sqlite3
 class Database():
 
     def __init__(self):
-        # self.connection = sqlite3.connect(r'/home/sbutenko/repos/LnD/Become QA Auto' + r'/become_qa_auto.db')
         self.connection = sqlite3.connect(r'C:\tmp\Rob\QA\Prometeus\Learn-QA' + r'\become_qa_auto.db')
         self.cursor = self.connection.cursor()
 
@@ -58,3 +57,32 @@ class Database():
         self.cursor.execute(query)
         record = self.cursor.fetchall()
         return record
+
+    def select_product_by_id(self, product_id):
+        query = f"SELECT * FROM products WHERE id = {product_id}"
+        self.cursor.execute(query)
+        record = self.cursor.fetchall()
+        return record
+
+    # try work with bad type of data
+    def insert_bad_type_of_data(self, column, bad_data):
+        #(self, table, column, bad_data):
+        print(column,bad_data)
+        if type(bad_data) == str:
+            query = f"INSERT OR REPLACE INTO products ({column}) VALUES ('{bad_data}')"
+        else:
+            query = f"INSERT OR REPLACE INTO products ({column}) VALUES ({bad_data})"
+
+        try:
+            self.cursor.execute(query)
+        except sqlite3.IntegrityError:
+            return 1
+        except sqlite3.OperationalError:
+            return 2
+        else:
+            self.connection.commit()
+            return 0
+
+
+
+
