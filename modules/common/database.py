@@ -13,15 +13,42 @@ class Database():
         record = self.cursor.fetchall()
         print(f"Connected successfully. SQLite Database Version is: {record}")
 
-    def get_all_users(self):
-        query = "SELECT name, address, city FROM customers"
+    def get_user_address_by_name(self, name):
+        query = f"SELECT address, city, postalCode, country FROM customers \
+            WHERE name = '{name}'"
+        self.cursor.execute(query)
+        record = self.cursor.fetchall()
+        return record
+        
+    # try to work with bad type of data
+    def insert_bad_type_of_data(self, column, bad_data):
+        print(column,bad_data)
+        if type(bad_data) == str:
+            query = f"INSERT OR REPLACE INTO products ({column}) VALUES ('{bad_data}')"
+        else:
+            query = f"INSERT OR REPLACE INTO products ({column}) VALUES ({bad_data})"
+        try:
+            self.cursor.execute(query)
+        except sqlite3.IntegrityError:
+            return 1
+        except sqlite3.OperationalError:
+            return 2
+        else:
+            self.connection.commit()
+            return 0
+
+    def get_detailed_orders(self):
+        query = "SELECT orders.id, customers.name, products.name, \
+                products.description, orders.order_date \
+                FROM orders \
+                JOIN customers ON orders.customer_id = customers.id \
+                JOIN products ON orders.product_id = products.id"
         self.cursor.execute(query)
         record = self.cursor.fetchall()
         return record
 
-    def get_user_address_by_name(self, name):
-        query = f"SELECT address, city, postalCode, country FROM customers \
-            WHERE name = '{name}'"
+    def get_all_users(self):
+        query = "SELECT name, address, city FROM customers"
         self.cursor.execute(query)
         record = self.cursor.fetchall()
         return record
@@ -48,40 +75,12 @@ class Database():
         self.cursor.execute(query)
         self.connection.commit()
         #               ------
-    def get_detailed_orders(self):
-        query = "SELECT orders.id, customers.name, products.name, \
-                products.description, orders.order_date \
-                FROM orders \
-                JOIN customers ON orders.customer_id = customers.id \
-                JOIN products ON orders.product_id = products.id"
-        self.cursor.execute(query)
-        record = self.cursor.fetchall()
-        return record
-
     def select_product_by_id(self, product_id):
         query = f"SELECT * FROM products WHERE id = {product_id}"
         self.cursor.execute(query)
         record = self.cursor.fetchall()
         return record
 
-    # try work with bad type of data
-    def insert_bad_type_of_data(self, column, bad_data):
-        #(self, table, column, bad_data):
-        print(column,bad_data)
-        if type(bad_data) == str:
-            query = f"INSERT OR REPLACE INTO products ({column}) VALUES ('{bad_data}')"
-        else:
-            query = f"INSERT OR REPLACE INTO products ({column}) VALUES ({bad_data})"
-
-        try:
-            self.cursor.execute(query)
-        except sqlite3.IntegrityError:
-            return 1
-        except sqlite3.OperationalError:
-            return 2
-        else:
-            self.connection.commit()
-            return 0
 
 
 

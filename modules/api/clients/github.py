@@ -3,7 +3,6 @@ import requests
 
 class GitHub:
     def get_user(self, username):
-        # r = requests.get(f"https://api.github.com/users/{username}")
         url = "https://api.github.com/users/" + username
         r = requests.get(f"{url}")
         body = r.json()
@@ -37,9 +36,9 @@ class GitHub:
 
         return body
 
-    # test from previors lessons
-    # def get_non_exist_user(self,username):
-    #     r = requests.get(f"https://api.github.com/users/{username}")
-    #     body = r.json()
+    # test for non-exist user (previors)
+    def get_non_exist_user(self,username):
+        r = requests.get(f"https://api.github.com/users/{username}")
+        body = r.json()
 
-    #     return body
+        return body
